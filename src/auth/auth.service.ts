@@ -29,13 +29,30 @@ export class AuthService {
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
-          throw new ForbiddenException('Email already in use');
+          throw new ForbiddenException('Credentials already in use');
         }
       }
       throw error;
     }
   }
-  signin() {
-    return { message: 'Signin from AuthService' };
+  async signin(dto: AuthDto) {
+    // find a user by email
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        email: dto.email,
+      },
+    });
+    // if user do not exist, throw ForbiddenException
+    if (!user) throw new ForbiddenException('Invalid credentials');
+
+    // if user exists, check if password is correct
+    const pwMatches = await argon.verify(user.hash, dto.password);
+
+    // if password is incorrect, throw ForbiddenException
+    if (!pwMatches) throw new ForbiddenException('Credentials do not match');
+    // if password is correct, return user
+
+    delete user.hash;
+    return user;
   }
 }
