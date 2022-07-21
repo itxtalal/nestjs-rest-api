@@ -1,21 +1,22 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { User } from '@prisma/client';
 import { Request } from 'express';
+import { GetUser } from '../auth/decorator';
 import { JwtGuard } from '../auth/guard';
 
+// AuthGuard linked to jwt Strategy we created in auth/strategy
+// NestJS Guards will prevent unauthorized access to the endpoint
+// If user is authenticated, only then the endpoint will be accessible
+@UseGuards(JwtGuard)
 @Controller('users')
 export class UserController {
-  // AuthGuard linked to jwt Strategy we created in auth/strategy
-  // NestJS Guards will prevent unauthorized access to the endpoint
-  // If user is authenticated, only then the endpoint will be accessible
-
   //* GET users/me
-  @UseGuards(JwtGuard)
   @Get('me')
-  getMe(@Req() req: Request) {
-    console.log({
-      user: req.user,
-    });
-    return req.user;
+  getMe(@GetUser() user: User) {
+    return user;
   }
+  // getMe(@GetUser('email') email: string) {
+  //   return { email };
+  // }
 }
