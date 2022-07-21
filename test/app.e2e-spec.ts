@@ -1,9 +1,11 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { PrismaService } from '../src/prisma/prisma.service';
 import { AppModule } from '../src/app.module';
 
 describe('App e2e', () => {
   let app: INestApplication;
+  let prisma: PrismaService;
 
   //? Start the application before running tests
   beforeAll(async () => {
@@ -20,6 +22,9 @@ describe('App e2e', () => {
     );
 
     await app.init();
+
+    prisma = app.get(PrismaService);
+    await prisma.cleanDb();
   });
 
   //? Close the application after running tests

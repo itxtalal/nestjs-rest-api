@@ -37,6 +37,7 @@ model Bookmark {
 
   userId Int
   user   User @relation(fields: [userId], references: [id])
+  // onDelete: Cascade is also available 
 
   @@map("bookmarks")
 }
