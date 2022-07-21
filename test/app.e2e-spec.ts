@@ -1,5 +1,6 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import * as pactum from 'pactum';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { AppModule } from '../src/app.module';
 
@@ -22,9 +23,14 @@ describe('App e2e', () => {
     );
 
     await app.init();
+    await app.listen(3333, () => {
+      console.log('Testing on port 3333');
+    });
 
     prisma = app.get(PrismaService);
     await prisma.cleanDb();
+
+    pactum.request.setBaseUrl('http://localhost:3333');
   });
 
   //? Close the application after running tests
@@ -33,17 +39,101 @@ describe('App e2e', () => {
   });
 
   describe('Auth', () => {
+    const validCredentials = {
+      email: 'test@testing.com',
+      password: 'test1234',
+    };
+
     describe('Signup', () => {
-      it.todo('should signup a new user');
+      it('should throw if email empty', () => {
+        pactum
+          .spec()
+          .post('/auth/signup')
+          .withBody({
+            email: '',
+            password: validCredentials.password,
+          })
+          .expectStatus(400);
+      });
+      it('should throw if password empty', () => {
+        pactum
+          .spec()
+          .post('/auth/signup')
+          .withBody({
+            email: validCredentials.email,
+            password: '',
+          })
+          .expectStatus(400);
+      });
+      it('should throw if body empty', () => {
+        pactum.spec().post('/auth/signup').expectStatus(400);
+      });
+      it('should signup a user with valid credentials', () => {
+        return pactum
+          .spec()
+          .post('/auth/signup')
+          .withBody(validCredentials)
+          .expectStatus(201);
+      });
     });
     describe('Signin', () => {
-      it.todo('should signin a user');
+      const invalidCredentials = {
+        email: 'test@testing.com',
+        password: 'test12345',
+      };
+      it('should throw if email empty', () => {
+        pactum
+          .spec()
+          .post('/auth/signin')
+          .withBody({
+            email: '',
+            password: validCredentials.password,
+          })
+          .expectStatus(400);
+      });
+      it('should throw if password empty', () => {
+        pactum
+          .spec()
+          .post('/auth/signin')
+          .withBody({
+            email: validCredentials.email,
+            password: '',
+          })
+          .expectStatus(400);
+      });
+      it('should throw if body empty', () => {
+        pactum.spec().post('/auth/signin').expectStatus(400);
+      });
+      it('should signin a user with valid credentials', () => {
+        return pactum
+          .spec()
+          .post('/auth/signin')
+          .withBody(validCredentials)
+          .expectStatus(200)
+          .stores('userAt', 'access_token');
+      });
+      it('should not signin a user with invalid credentials', () => {
+        return pactum
+          .spec()
+          .post('/auth/signin')
+          .withBody(invalidCredentials)
+          .expectStatus(403);
+      });
     });
   });
 
   describe('User', () => {
     describe('Get me', () => {
-      it.todo('should return users data');
+      it('should get current user', () => {
+        return pactum
+          .spec()
+          .get('/users/me')
+          .withHeaders({
+            Authorization: `Bearer $S{userAt}`,
+          })
+          .expectStatus(200);
+        // .inspect();
+      });
     });
     describe('Edit user', () => {
       it.todo('should edit users data');
