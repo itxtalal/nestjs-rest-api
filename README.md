@@ -75,11 +75,13 @@ $ npm run test:cov
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
-## Stay in touch
+## Author
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+👤 **Talal**
+
+- Twitter: [@mtalalj](https://twitter.com/mtalalj)
+- Github: [@itxtalal](https://github.com/itxtalal)
+- LinkedIn: [@itxtalal](https://linkedin.com/in/itxtalal)
 
 ## License
 
