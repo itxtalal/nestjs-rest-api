@@ -136,7 +136,20 @@ describe('App e2e', () => {
       });
     });
     describe('Edit user', () => {
-      it.todo('should edit users data');
+      it('should edit users data', () => {
+        const dto = {
+          firstName: 'talal',
+        };
+        return pactum
+          .spec()
+          .patch('/users')
+          .withHeaders({
+            Authorization: `Bearer $S{userAt}`,
+          })
+          .withBody(dto)
+          .expectStatus(200)
+          .expectBodyContains(dto.firstName);
+      });
     });
   });
 
